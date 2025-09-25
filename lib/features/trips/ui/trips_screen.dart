@@ -3,46 +3,43 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistics_management_app/core/theming/app_styles.dart';
 import 'package:logistics_management_app/core/theming/colors_manager.dart';
-import 'package:logistics_management_app/features/drivers/data/models/driver_model.dart';
-import 'package:logistics_management_app/features/drivers/logic/cubit/drivers_cubit.dart';
-import 'package:logistics_management_app/features/drivers/logic/cubit/drivers_state.dart';
-import 'package:logistics_management_app/features/drivers/ui/widgets/driver_list_item.dart';
 import 'package:logistics_management_app/features/home/data/models/home_models.dart';
-import 'package:logistics_management_app/features/home/ui/widgets/home_bottom_navigation.dart';
 import 'package:logistics_management_app/features/home/ui/home_screen.dart';
-import 'package:logistics_management_app/features/trips/ui/trips_screen.dart';
+import 'package:logistics_management_app/features/home/ui/widgets/home_bottom_navigation.dart';
+import 'package:logistics_management_app/features/drivers/ui/drivers_screen.dart';
+import 'package:logistics_management_app/features/trips/data/models/trip_model.dart';
+import 'package:logistics_management_app/features/trips/logic/cubit/trips_cubit.dart';
+import 'package:logistics_management_app/features/trips/logic/cubit/trips_state.dart';
+import 'package:logistics_management_app/features/trips/ui/widgets/trip_card.dart';
 
-class DriversScreen extends StatelessWidget {
-  const DriversScreen({super.key});
+class TripsScreen extends StatelessWidget {
+  const TripsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => DriversCubit(),
-      child: const _DriversView(),
-    );
+    return BlocProvider(create: (_) => TripsCubit(), child: const _TripsView());
   }
 }
 
-class _DriversView extends StatelessWidget {
-  const _DriversView();
+class _TripsView extends StatelessWidget {
+  const _TripsView();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorsManager.backgroundCanvas,
       body: SafeArea(
-        child: BlocBuilder<DriversCubit, DriversState>(
+        child: BlocBuilder<TripsCubit, TripsState>(
           builder: (context, state) {
-            if (state.isLoading || state.status == DriversStatus.initial) {
+            if (state.isLoading || state.status == TripsStatus.initial) {
               return const Center(child: CircularProgressIndicator());
             }
 
             if (state.isFailure) {
-              return _DriversErrorView(errorMessage: state.errorMessage);
+              return _TripsErrorView(errorMessage: state.errorMessage);
             }
 
-            return _DriversSuccessView(state: state);
+            return _TripsSuccessView(state: state);
           },
         ),
       ),
@@ -50,10 +47,10 @@ class _DriversView extends StatelessWidget {
   }
 }
 
-class _DriversSuccessView extends StatelessWidget {
-  const _DriversSuccessView({required this.state});
+class _TripsSuccessView extends StatelessWidget {
+  const _TripsSuccessView({required this.state});
 
-  final DriversState state;
+  final TripsState state;
 
   @override
   Widget build(BuildContext context) {
@@ -79,22 +76,22 @@ class _DriversSuccessView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _DriversHeader(),
+                          const _TripsHeader(),
                           16.verticalSpace,
-                          const _DriversSearchField(),
+                          const _TripsFilterTabs(),
                           24.verticalSpace,
                         ],
                       ),
                     ),
                   ),
-                  if (state.filteredDrivers.isEmpty)
+                  if (state.filteredTrips.isEmpty)
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
                         horizontal: horizontalPadding,
                         vertical: 24.h,
                       ),
-                      sliver: SliverToBoxAdapter(
-                        child: _DriversEmptyState(query: state.searchQuery),
+                      sliver: const SliverToBoxAdapter(
+                        child: _TripsEmptyState(),
                       ),
                     )
                   else
@@ -105,8 +102,8 @@ class _DriversSuccessView extends StatelessWidget {
                         horizontalPadding,
                         24.h,
                       ),
-                      sliver: _DriverCollection(
-                        drivers: state.filteredDrivers,
+                      sliver: _TripsCollection(
+                        trips: state.filteredTrips,
                         crossAxisCount: crossAxisCount,
                       ),
                     ),
@@ -115,7 +112,7 @@ class _DriversSuccessView extends StatelessWidget {
             ),
             HomeBottomNavigation(
               items: dashboardNavigationItems,
-              activeIndex: 2,
+              activeIndex: 3,
               onItemSelected: (index) => _handleNavigationTap(context, index),
             ),
           ],
@@ -132,13 +129,13 @@ class _DriversSuccessView extends StatelessWidget {
   }
 
   int _gridCrossAxisCount(double width) {
-    if (width >= 1100) return 3;
+    if (width >= 1100) return 2;
     if (width >= 800) return 2;
     return 1;
   }
 
   void _handleNavigationTap(BuildContext context, int index) {
-    if (index == 2) return;
+    if (index == 3) return;
     if (index == 0) {
       Navigator.of(
         context,
@@ -146,10 +143,10 @@ class _DriversSuccessView extends StatelessWidget {
       return;
     }
 
-    if (index == 3) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const TripsScreen()));
+    if (index == 2) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const DriversScreen()),
+      );
       return;
     }
 
@@ -160,8 +157,8 @@ class _DriversSuccessView extends StatelessWidget {
   }
 }
 
-class _DriversHeader extends StatelessWidget {
-  const _DriversHeader();
+class _TripsHeader extends StatelessWidget {
+  const _TripsHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +167,7 @@ class _DriversHeader extends StatelessWidget {
         SizedBox(width: 48.w),
         Expanded(
           child: Text(
-            'Drivers',
+            'Trips',
             style: AppStyles.pageTitle,
             textAlign: TextAlign.center,
           ),
@@ -179,10 +176,10 @@ class _DriversHeader extends StatelessWidget {
           width: 48.w,
           child: Align(
             alignment: Alignment.centerRight,
-            child: _AddDriverButton(
+            child: _AddTripButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Add Driver tapped')),
+                  const SnackBar(content: Text('Add Trip tapped')),
                 );
               },
             ),
@@ -193,8 +190,8 @@ class _DriversHeader extends StatelessWidget {
   }
 }
 
-class _AddDriverButton extends StatelessWidget {
-  const _AddDriverButton({required this.onPressed});
+class _AddTripButton extends StatelessWidget {
+  const _AddTripButton({required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -219,81 +216,67 @@ class _AddDriverButton extends StatelessWidget {
   }
 }
 
-class _DriversSearchField extends StatefulWidget {
-  const _DriversSearchField();
-
-  @override
-  State<_DriversSearchField> createState() => _DriversSearchFieldState();
-}
-
-class _DriversSearchFieldState extends State<_DriversSearchField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    final state = context.read<DriversCubit>().state;
-    _controller = TextEditingController(text: state.searchQuery);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class _TripsFilterTabs extends StatelessWidget {
+  const _TripsFilterTabs();
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DriversCubit, DriversState>(
-      listenWhen: (previous, current) =>
-          previous.searchQuery != current.searchQuery,
-      listener: (context, state) {
-        if (_controller.text != state.searchQuery) {
-          _controller.value = TextEditingValue(
-            text: state.searchQuery,
-            selection: TextSelection.collapsed(
-              offset: state.searchQuery.length,
+    return BlocBuilder<TripsCubit, TripsState>(
+      buildWhen: (previous, current) =>
+          previous.activeFilter != current.activeFilter,
+      builder: (context, state) {
+        return Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: ColorsManager.borderSubtle, width: 1),
             ),
-          );
-        }
-      },
-      child: Container(
-        height: 48.h,
-        decoration: BoxDecoration(
-          color: ColorsManager.surfaceMuted,
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Row(
-          children: [
-            16.horizontalSpace,
-            Icon(Icons.search, color: ColorsManager.textSecondary, size: 22.sp),
-            12.horizontalSpace,
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                onChanged: context.read<DriversCubit>().onSearchChanged,
-                style: AppStyles.searchInput,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Search drivers',
-                  hintStyle: AppStyles.searchPlaceholder,
+          ),
+          child: Row(
+            children: TripFilter.values.map((filter) {
+              final isActive = filter == state.activeFilter;
+              return Expanded(
+                child: InkWell(
+                  onTap: () => context.read<TripsCubit>().setFilter(filter),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          filter.label,
+                          style: isActive
+                              ? AppStyles.tabLabelActive
+                              : AppStyles.tabLabelInactive,
+                        ),
+                        8.verticalSpace,
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 3,
+                          width: 32.w,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? ColorsManager.primaryActionBlue
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }
 
-class _DriverCollection extends StatelessWidget {
-  const _DriverCollection({
-    required this.drivers,
-    required this.crossAxisCount,
-  });
+class _TripsCollection extends StatelessWidget {
+  const _TripsCollection({required this.trips, required this.crossAxisCount});
 
-  final List<DriverProfile> drivers;
+  final List<TripSummary> trips;
   final int crossAxisCount;
 
   @override
@@ -301,58 +284,62 @@ class _DriverCollection extends StatelessWidget {
     if (crossAxisCount == 1) {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final driver = drivers[index];
+          final trip = trips[index];
           return Padding(
             padding: EdgeInsets.only(
-              bottom: index == drivers.length - 1 ? 0 : 16.h,
+              bottom: index == trips.length - 1 ? 0 : 16.h,
             ),
-            child: DriverListItem(driver: driver),
+            child: TripCard(
+              trip: trip,
+              onViewPressed: () => _onViewPressed(context, trip),
+            ),
           );
-        }, childCount: drivers.length),
+        }, childCount: trips.length),
       );
     }
 
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 16.h,
         crossAxisSpacing: 16.w,
-        mainAxisExtent: 96.h,
+        mainAxisSpacing: 16.h,
+        mainAxisExtent: 220.h,
       ),
       delegate: SliverChildBuilderDelegate(
-        (context, index) => DriverListItem(driver: drivers[index]),
-        childCount: drivers.length,
+        (context, index) => TripCard(
+          trip: trips[index],
+          isHorizontal: true,
+          onViewPressed: () => _onViewPressed(context, trips[index]),
+        ),
+        childCount: trips.length,
       ),
     );
   }
+
+  void _onViewPressed(BuildContext context, TripSummary trip) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Viewing ${trip.displayTitle}')));
+  }
 }
 
-class _DriversEmptyState extends StatelessWidget {
-  const _DriversEmptyState({required this.query});
-
-  final String query;
+class _TripsEmptyState extends StatelessWidget {
+  const _TripsEmptyState();
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
-          Icons.group_off_rounded,
+          Icons.map_outlined,
           size: 48.sp,
           color: ColorsManager.textSecondary,
         ),
         12.verticalSpace,
-        Text(
-          'No drivers found',
-          style: AppStyles.cardTitle,
-          textAlign: TextAlign.center,
-        ),
+        Text('No trips to display', style: AppStyles.cardTitle),
         8.verticalSpace,
         Text(
-          query.isEmpty
-              ? 'Try refreshing or adding a new driver.'
-              : 'No drivers match "$query". Update your search and try again.',
+          'Try adjusting your filters or refresh to load more trips.',
           style: AppStyles.bodyMeta,
           textAlign: TextAlign.center,
         ),
@@ -361,8 +348,8 @@ class _DriversEmptyState extends StatelessWidget {
   }
 }
 
-class _DriversErrorView extends StatelessWidget {
-  const _DriversErrorView({this.errorMessage});
+class _TripsErrorView extends StatelessWidget {
+  const _TripsErrorView({this.errorMessage});
 
   final String? errorMessage;
 
@@ -375,13 +362,13 @@ class _DriversErrorView extends StatelessWidget {
           Icon(Icons.error_outline, size: 40.sp, color: ColorsManager.errorRed),
           12.verticalSpace,
           Text(
-            errorMessage ?? 'Unable to load drivers right now.',
+            errorMessage ?? 'Unable to load trips right now.',
             style: AppStyles.bodyMeta,
             textAlign: TextAlign.center,
           ),
           16.verticalSpace,
           FilledButton(
-            onPressed: context.read<DriversCubit>().retry,
+            onPressed: context.read<TripsCubit>().retry,
             style: FilledButton.styleFrom(
               backgroundColor: ColorsManager.primaryActionBlue,
             ),

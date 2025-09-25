@@ -15,4 +15,7 @@ class ColorsManager {
   static const Color surfaceMuted = Color(0xFFE7ECF3);
   static const Color borderSubtle = Color(0xFFD0D9E7);
   static const Color statusAvailable = Color(0xFF07883B);
+  static const Color statusPending = Color(0xFF4D6A99);
+  static const Color statusOngoing = Color(0xFF1767E8);
+  static const Color statusCompleted = Color(0xFF07883B);
 }

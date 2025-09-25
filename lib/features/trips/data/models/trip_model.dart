@@ -20,6 +20,22 @@ class TripSummary extends Equatable {
   String get displayTitle => 'Trip #$id';
   String get subtitle => 'Driver: $driverName · Vehicle: $vehicleName';
 
+  TripSummary copyWith({
+    String? id,
+    TripStatus? status,
+    String? driverName,
+    String? vehicleName,
+    String? imageUrl,
+  }) {
+    return TripSummary(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      driverName: driverName ?? this.driverName,
+      vehicleName: vehicleName ?? this.vehicleName,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
+
   @override
   List<Object?> get props => [id, status, driverName, vehicleName, imageUrl];
 }

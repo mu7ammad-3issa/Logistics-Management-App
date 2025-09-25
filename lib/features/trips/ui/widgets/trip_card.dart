@@ -90,11 +90,23 @@ class _TripDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          _statusLabel,
-          style: AppStyles.bodyMeta.copyWith(color: _statusColor),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: _statusColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(999.r),
+          ),
+          child: Text(
+            _statusLabel,
+            style: AppStyles.bodyMeta.copyWith(
+              color: _statusColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        4.verticalSpace,
+        8.verticalSpace,
         Text(trip.displayTitle, style: AppStyles.cardTitle),
         4.verticalSpace,
         Text(trip.subtitle, style: AppStyles.bodyMeta),

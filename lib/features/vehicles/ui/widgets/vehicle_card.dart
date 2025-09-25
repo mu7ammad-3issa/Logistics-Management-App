@@ -80,7 +80,9 @@ class _VehicleDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
             color: _statusColor.withValues(alpha: 0.12),

@@ -29,6 +29,28 @@ class VehicleProfile extends Equatable {
   String get driverDisplay => driverName ?? 'Unassigned';
   String get summary => '$type · Plate $plateNumber';
 
+  VehicleProfile copyWith({
+    String? name,
+    String? type,
+    String? plateNumber,
+    VehicleStatus? status,
+    String? imageUrl,
+    String? driverName,
+    String? lastService,
+    int? odometerKm,
+  }) {
+    return VehicleProfile(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      plateNumber: plateNumber ?? this.plateNumber,
+      status: status ?? this.status,
+      imageUrl: imageUrl ?? this.imageUrl,
+      driverName: driverName ?? this.driverName,
+      lastService: lastService ?? this.lastService,
+      odometerKm: odometerKm ?? this.odometerKm,
+    );
+  }
+
   @override
   List<Object?> get props => [
     name,

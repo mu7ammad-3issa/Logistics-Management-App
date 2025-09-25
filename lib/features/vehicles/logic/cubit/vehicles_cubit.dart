@@ -82,7 +82,9 @@ class VehiclesCubit extends Cubit<VehiclesState> {
     final sanitizedType = type.trim();
     final sanitizedPlate = plateNumber.trim().toUpperCase();
 
-    if (sanitizedName.isEmpty || sanitizedType.isEmpty || sanitizedPlate.isEmpty) {
+    if (sanitizedName.isEmpty ||
+        sanitizedType.isEmpty ||
+        sanitizedPlate.isEmpty) {
       return false;
     }
 
@@ -132,28 +134,32 @@ class VehiclesCubit extends Cubit<VehiclesState> {
     String? lastService,
     int? odometerKm,
   }) {
-  final sanitizedDriver = driverName?.trim();
-  final sanitizedService = lastService?.trim();
+    final sanitizedDriver = driverName?.trim();
+    final sanitizedService = lastService?.trim();
 
     if (!state.vehicles.any((vehicle) => vehicle.plateNumber == plateNumber)) {
       return false;
     }
 
-    final updatedVehicles = state.vehicles.map((vehicle) {
-      if (vehicle.plateNumber == plateNumber) {
-        return vehicle.copyWith(
-          status: status,
-          driverName: driverName == null
-              ? vehicle.driverName
-              : (sanitizedDriver?.isEmpty ?? true ? null : sanitizedDriver),
-          lastService: lastService == null
-              ? vehicle.lastService
-              : (sanitizedService?.isEmpty ?? true ? null : sanitizedService),
-          odometerKm: odometerKm ?? vehicle.odometerKm,
-        );
-      }
-      return vehicle;
-    }).toList(growable: false);
+    final updatedVehicles = state.vehicles
+        .map((vehicle) {
+          if (vehicle.plateNumber == plateNumber) {
+            return vehicle.copyWith(
+              status: status,
+              driverName: driverName == null
+                  ? vehicle.driverName
+                  : (sanitizedDriver?.isEmpty ?? true ? null : sanitizedDriver),
+              lastService: lastService == null
+                  ? vehicle.lastService
+                  : (sanitizedService?.isEmpty ?? true
+                        ? null
+                        : sanitizedService),
+              odometerKm: odometerKm ?? vehicle.odometerKm,
+            );
+          }
+          return vehicle;
+        })
+        .toList(growable: false);
 
     final filteredVehicles = _applyFilters(
       vehicles: updatedVehicles,
@@ -265,7 +271,8 @@ class VehiclesCubit extends Cubit<VehiclesState> {
     if (_vehicleImagePool.isEmpty) {
       return 'https://images.unsplash.com/photo-1468882642597-0ff71fd7a476?auto=format&fit=crop&w=900&q=80';
     }
-    final image = _vehicleImagePool[_vehicleImageCursor % _vehicleImagePool.length];
+    final image =
+        _vehicleImagePool[_vehicleImageCursor % _vehicleImagePool.length];
     _vehicleImageCursor += 1;
     return image;
   }

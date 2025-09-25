@@ -69,12 +69,7 @@ class TripsCubit extends Cubit<TripsState> {
     final updatedTrips = [newTrip, ...state.trips];
     final filteredTrips = _filterTrips(state.activeFilter, updatedTrips);
 
-    emit(
-      state.copyWith(
-        trips: updatedTrips,
-        filteredTrips: filteredTrips,
-      ),
-    );
+    emit(state.copyWith(trips: updatedTrips, filteredTrips: filteredTrips));
 
     return true;
   }
@@ -91,25 +86,22 @@ class TripsCubit extends Cubit<TripsState> {
       return false;
     }
 
-    final updatedTrips = state.trips.map((trip) {
-      if (trip.id == id) {
-        return trip.copyWith(
-          status: status,
-          driverName: sanitizedDriver,
-          vehicleName: sanitizedVehicle,
-        );
-      }
-      return trip;
-    }).toList(growable: false);
+    final updatedTrips = state.trips
+        .map((trip) {
+          if (trip.id == id) {
+            return trip.copyWith(
+              status: status,
+              driverName: sanitizedDriver,
+              vehicleName: sanitizedVehicle,
+            );
+          }
+          return trip;
+        })
+        .toList(growable: false);
 
     final filteredTrips = _filterTrips(state.activeFilter, updatedTrips);
 
-    emit(
-      state.copyWith(
-        trips: updatedTrips,
-        filteredTrips: filteredTrips,
-      ),
-    );
+    emit(state.copyWith(trips: updatedTrips, filteredTrips: filteredTrips));
 
     return true;
   }

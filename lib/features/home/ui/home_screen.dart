@@ -9,6 +9,7 @@ import 'package:logistics_management_app/features/home/logic/cubit/home_state.da
 import 'package:logistics_management_app/features/home/ui/widgets/home_bottom_navigation.dart';
 import 'package:logistics_management_app/features/home/ui/widgets/home_metric_card.dart';
 import 'package:logistics_management_app/features/home/ui/widgets/home_quick_action_button.dart';
+import 'package:logistics_management_app/features/drivers/ui/drivers_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -103,7 +104,7 @@ class _HomeSuccessView extends StatelessWidget {
             HomeBottomNavigation(
               items: state.navigationItems,
               activeIndex: state.activeNavigationIndex,
-              onItemSelected: context.read<HomeCubit>().selectNavigationItem,
+              onItemSelected: (index) => _handleNavigationTap(context, index),
             ),
           ],
         );
@@ -122,6 +123,29 @@ class _HomeSuccessView extends StatelessWidget {
     if (width >= 1100) return 3;
     if (width >= 750) return 2;
     return 1;
+  }
+
+  void _handleNavigationTap(BuildContext context, int index) {
+    final cubit = context.read<HomeCubit>();
+
+    if (index == 0) {
+      cubit.selectNavigationItem(0);
+      return;
+    }
+
+    if (index == 2) {
+      cubit.selectNavigationItem(index);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const DriversScreen()))
+          .then((_) => cubit.selectNavigationItem(0));
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${state.navigationItems[index].label} is coming soon.'),
+      ),
+    );
   }
 }
 

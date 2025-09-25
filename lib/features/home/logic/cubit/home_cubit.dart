@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistics_management_app/core/theming/colors_manager.dart';
 import 'package:logistics_management_app/features/home/data/models/home_models.dart';
@@ -76,11 +75,6 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   List<HomeNavigationItem> _buildNavigationItems() {
-    return const [
-      HomeNavigationItem(label: 'Dashboard', icon: Icons.home_rounded),
-      HomeNavigationItem(label: 'Vehicles', icon: Icons.local_shipping),
-      HomeNavigationItem(label: 'Drivers', icon: Icons.people_alt_rounded),
-      HomeNavigationItem(label: 'Trips', icon: Icons.map_outlined),
-    ];
+    return dashboardNavigationItems;
   }
 }

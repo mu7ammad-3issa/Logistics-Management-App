@@ -42,3 +42,10 @@ class HomeNavigationItem extends Equatable {
   @override
   List<Object?> get props => [label, icon];
 }
+
+const List<HomeNavigationItem> dashboardNavigationItems = [
+  HomeNavigationItem(label: 'Dashboard', icon: Icons.home_rounded),
+  HomeNavigationItem(label: 'Vehicles', icon: Icons.local_shipping),
+  HomeNavigationItem(label: 'Drivers', icon: Icons.people_alt_rounded),
+  HomeNavigationItem(label: 'Trips', icon: Icons.map_outlined),
+];

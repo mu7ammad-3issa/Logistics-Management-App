@@ -14,4 +14,5 @@ class ColorsManager {
   static const Color backgroundCanvas = Color(0xFFF8FAFC);
   static const Color surfaceMuted = Color(0xFFE7ECF3);
   static const Color borderSubtle = Color(0xFFD0D9E7);
+  static const Color statusAvailable = Color(0xFF07883B);
 }

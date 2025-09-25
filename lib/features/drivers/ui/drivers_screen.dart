@@ -11,6 +11,7 @@ import 'package:logistics_management_app/features/home/data/models/home_models.d
 import 'package:logistics_management_app/features/home/ui/widgets/home_bottom_navigation.dart';
 import 'package:logistics_management_app/features/home/ui/home_screen.dart';
 import 'package:logistics_management_app/features/trips/ui/trips_screen.dart';
+import 'package:logistics_management_app/features/vehicles/ui/vehicles_screen.dart';
 
 class DriversScreen extends StatelessWidget {
   const DriversScreen({super.key});
@@ -143,6 +144,13 @@ class _DriversSuccessView extends StatelessWidget {
       Navigator.of(
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      return;
+    }
+
+    if (index == 1) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const VehiclesScreen()),
+      );
       return;
     }
 

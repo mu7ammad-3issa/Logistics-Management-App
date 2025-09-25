@@ -18,4 +18,6 @@ class ColorsManager {
   static const Color statusPending = Color(0xFF4D6A99);
   static const Color statusOngoing = Color(0xFF1767E8);
   static const Color statusCompleted = Color(0xFF07883B);
+  static const Color statusInUse = Color(0xFF1767E8);
+  static const Color statusMaintenance = Color(0xFFF59E0B);
 }

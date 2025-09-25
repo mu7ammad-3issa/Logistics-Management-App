@@ -11,6 +11,7 @@ import 'package:logistics_management_app/features/home/ui/widgets/home_metric_ca
 import 'package:logistics_management_app/features/home/ui/widgets/home_quick_action_button.dart';
 import 'package:logistics_management_app/features/drivers/ui/drivers_screen.dart';
 import 'package:logistics_management_app/features/trips/ui/trips_screen.dart';
+import 'package:logistics_management_app/features/vehicles/ui/vehicles_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -131,6 +132,14 @@ class _HomeSuccessView extends StatelessWidget {
 
     if (index == 0) {
       cubit.selectNavigationItem(0);
+      return;
+    }
+
+    if (index == 1) {
+      cubit.selectNavigationItem(index);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const VehiclesScreen()))
+          .then((_) => cubit.selectNavigationItem(0));
       return;
     }
 

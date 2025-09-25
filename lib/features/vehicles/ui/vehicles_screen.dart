@@ -3,44 +3,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistics_management_app/core/theming/app_styles.dart';
 import 'package:logistics_management_app/core/theming/colors_manager.dart';
+import 'package:logistics_management_app/features/drivers/ui/drivers_screen.dart';
 import 'package:logistics_management_app/features/home/data/models/home_models.dart';
 import 'package:logistics_management_app/features/home/ui/home_screen.dart';
 import 'package:logistics_management_app/features/home/ui/widgets/home_bottom_navigation.dart';
-import 'package:logistics_management_app/features/drivers/ui/drivers_screen.dart';
-import 'package:logistics_management_app/features/vehicles/ui/vehicles_screen.dart';
-import 'package:logistics_management_app/features/trips/data/models/trip_model.dart';
-import 'package:logistics_management_app/features/trips/logic/cubit/trips_cubit.dart';
-import 'package:logistics_management_app/features/trips/logic/cubit/trips_state.dart';
-import 'package:logistics_management_app/features/trips/ui/widgets/trip_card.dart';
+import 'package:logistics_management_app/features/trips/ui/trips_screen.dart';
+import 'package:logistics_management_app/features/vehicles/data/models/vehicle_model.dart';
+import 'package:logistics_management_app/features/vehicles/logic/cubit/vehicles_cubit.dart';
+import 'package:logistics_management_app/features/vehicles/logic/cubit/vehicles_state.dart';
+import 'package:logistics_management_app/features/vehicles/ui/widgets/vehicle_card.dart';
 
-class TripsScreen extends StatelessWidget {
-  const TripsScreen({super.key});
+class VehiclesScreen extends StatelessWidget {
+  const VehiclesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => TripsCubit(), child: const _TripsView());
+    return BlocProvider(
+      create: (_) => VehiclesCubit(),
+      child: const _VehiclesView(),
+    );
   }
 }
 
-class _TripsView extends StatelessWidget {
-  const _TripsView();
+class _VehiclesView extends StatelessWidget {
+  const _VehiclesView();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorsManager.backgroundCanvas,
       body: SafeArea(
-        child: BlocBuilder<TripsCubit, TripsState>(
+        child: BlocBuilder<VehiclesCubit, VehiclesState>(
           builder: (context, state) {
-            if (state.isLoading || state.status == TripsStatus.initial) {
+            if (state.isLoading || state.status == VehiclesStatus.initial) {
               return const Center(child: CircularProgressIndicator());
             }
 
             if (state.isFailure) {
-              return _TripsErrorView(errorMessage: state.errorMessage);
+              return _VehiclesErrorView(errorMessage: state.errorMessage);
             }
 
-            return _TripsSuccessView(state: state);
+            return _VehiclesSuccessView(state: state);
           },
         ),
       ),
@@ -48,10 +51,10 @@ class _TripsView extends StatelessWidget {
   }
 }
 
-class _TripsSuccessView extends StatelessWidget {
-  const _TripsSuccessView({required this.state});
+class _VehiclesSuccessView extends StatelessWidget {
+  const _VehiclesSuccessView({required this.state});
 
-  final TripsState state;
+  final VehiclesState state;
 
   @override
   Widget build(BuildContext context) {
@@ -77,34 +80,35 @@ class _TripsSuccessView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _TripsHeader(),
+                          const _VehiclesHeader(),
                           16.verticalSpace,
-                          const _TripsFilterTabs(),
-                          24.verticalSpace,
+                          const _VehiclesSearchField(),
+                          16.verticalSpace,
+                          const _VehiclesFilterTabs(),
                         ],
                       ),
                     ),
                   ),
-                  if (state.filteredTrips.isEmpty)
+                  if (state.filteredVehicles.isEmpty)
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
                         horizontal: horizontalPadding,
-                        vertical: 24.h,
+                        vertical: 32.h,
                       ),
                       sliver: const SliverToBoxAdapter(
-                        child: _TripsEmptyState(),
+                        child: _VehiclesEmptyState(),
                       ),
                     )
                   else
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(
                         horizontalPadding,
-                        0,
+                        24.h,
                         horizontalPadding,
                         24.h,
                       ),
-                      sliver: _TripsCollection(
-                        trips: state.filteredTrips,
+                      sliver: _VehicleCollection(
+                        vehicles: state.filteredVehicles,
                         crossAxisCount: crossAxisCount,
                       ),
                     ),
@@ -113,7 +117,7 @@ class _TripsSuccessView extends StatelessWidget {
             ),
             HomeBottomNavigation(
               items: dashboardNavigationItems,
-              activeIndex: 3,
+              activeIndex: 1,
               onItemSelected: (index) => _handleNavigationTap(context, index),
             ),
           ],
@@ -130,24 +134,18 @@ class _TripsSuccessView extends StatelessWidget {
   }
 
   int _gridCrossAxisCount(double width) {
-    if (width >= 1100) return 2;
-    if (width >= 800) return 2;
+    if (width >= 1280) return 3;
+    if (width >= 900) return 2;
     return 1;
   }
 
   void _handleNavigationTap(BuildContext context, int index) {
-    if (index == 3) return;
+    if (index == 1) return;
+
     if (index == 0) {
       Navigator.of(
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
-      return;
-    }
-
-    if (index == 1) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const VehiclesScreen()),
-      );
       return;
     }
 
@@ -158,6 +156,13 @@ class _TripsSuccessView extends StatelessWidget {
       return;
     }
 
+    if (index == 3) {
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const TripsScreen()));
+      return;
+    }
+
     final label = dashboardNavigationItems[index].label;
     ScaffoldMessenger.of(
       context,
@@ -165,8 +170,8 @@ class _TripsSuccessView extends StatelessWidget {
   }
 }
 
-class _TripsHeader extends StatelessWidget {
-  const _TripsHeader();
+class _VehiclesHeader extends StatelessWidget {
+  const _VehiclesHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +180,7 @@ class _TripsHeader extends StatelessWidget {
         SizedBox(width: 48.w),
         Expanded(
           child: Text(
-            'Trips',
+            'Vehicles',
             style: AppStyles.pageTitle,
             textAlign: TextAlign.center,
           ),
@@ -184,10 +189,10 @@ class _TripsHeader extends StatelessWidget {
           width: 48.w,
           child: Align(
             alignment: Alignment.centerRight,
-            child: _AddTripButton(
+            child: _AddVehicleButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Add Trip tapped')),
+                  const SnackBar(content: Text('Add Vehicle tapped')),
                 );
               },
             ),
@@ -198,8 +203,8 @@ class _TripsHeader extends StatelessWidget {
   }
 }
 
-class _AddTripButton extends StatelessWidget {
-  const _AddTripButton({required this.onPressed});
+class _AddVehicleButton extends StatelessWidget {
+  const _AddVehicleButton({required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -217,22 +222,93 @@ class _AddTripButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.r),
             color: ColorsManager.surfaceMuted,
           ),
-          child: Icon(Icons.add, color: ColorsManager.textPrimary, size: 24.sp),
+          child: Icon(Icons.add, size: 24.sp, color: ColorsManager.textPrimary),
         ),
       ),
     );
   }
 }
 
-class _TripsFilterTabs extends StatelessWidget {
-  const _TripsFilterTabs();
+class _VehiclesSearchField extends StatefulWidget {
+  const _VehiclesSearchField();
+
+  @override
+  State<_VehiclesSearchField> createState() => _VehiclesSearchFieldState();
+}
+
+class _VehiclesSearchFieldState extends State<_VehiclesSearchField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<VehiclesCubit>().state;
+    _controller = TextEditingController(text: state.searchQuery);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TripsCubit, TripsState>(
+    return BlocListener<VehiclesCubit, VehiclesState>(
+      listenWhen: (previous, current) =>
+          previous.searchQuery != current.searchQuery,
+      listener: (context, state) {
+        if (_controller.text != state.searchQuery) {
+          _controller.value = TextEditingValue(
+            text: state.searchQuery,
+            selection: TextSelection.collapsed(
+              offset: state.searchQuery.length,
+            ),
+          );
+        }
+      },
+      child: Container(
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: ColorsManager.surfaceMuted,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            16.horizontalSpace,
+            Icon(Icons.search, size: 22.sp, color: ColorsManager.textSecondary),
+            12.horizontalSpace,
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onChanged: context.read<VehiclesCubit>().onSearchChanged,
+                style: AppStyles.searchInput,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Search vehicles',
+                  hintStyle: AppStyles.searchPlaceholder,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VehiclesFilterTabs extends StatelessWidget {
+  const _VehiclesFilterTabs();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<VehiclesCubit, VehiclesState>(
       buildWhen: (previous, current) =>
-          previous.activeFilter != current.activeFilter,
+          previous.activeFilter != current.activeFilter ||
+          previous.vehicles != current.vehicles,
       builder: (context, state) {
+        final counts = _buildCounts(state.vehicles);
+
         return Container(
           decoration: BoxDecoration(
             border: Border(
@@ -240,18 +316,20 @@ class _TripsFilterTabs extends StatelessWidget {
             ),
           ),
           child: Row(
-            children: TripFilter.values.map((filter) {
-              final isActive = filter == state.activeFilter;
+            children: VehicleFilter.values.map((filter) {
+              final isActive = state.activeFilter == filter;
+              final label = '${filter.label} (${counts[filter] ?? 0})';
+
               return Expanded(
                 child: InkWell(
-                  onTap: () => context.read<TripsCubit>().setFilter(filter),
+                  onTap: () => context.read<VehiclesCubit>().setFilter(filter),
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.h),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          filter.label,
+                          label,
                           style: isActive
                               ? AppStyles.tabLabelActive
                               : AppStyles.tabLabelInactive,
@@ -279,12 +357,29 @@ class _TripsFilterTabs extends StatelessWidget {
       },
     );
   }
+
+  Map<VehicleFilter, int> _buildCounts(List<VehicleProfile> vehicles) {
+    final counts = <VehicleFilter, int>{
+      for (final filter in VehicleFilter.values) filter: 0,
+    };
+
+    for (final vehicle in vehicles) {
+      final filter = filterForVehicleStatus(vehicle.status);
+      counts[filter] = (counts[filter] ?? 0) + 1;
+    }
+
+    counts[VehicleFilter.all] = vehicles.length;
+    return counts;
+  }
 }
 
-class _TripsCollection extends StatelessWidget {
-  const _TripsCollection({required this.trips, required this.crossAxisCount});
+class _VehicleCollection extends StatelessWidget {
+  const _VehicleCollection({
+    required this.vehicles,
+    required this.crossAxisCount,
+  });
 
-  final List<TripSummary> trips;
+  final List<VehicleProfile> vehicles;
   final int crossAxisCount;
 
   @override
@@ -292,62 +387,63 @@ class _TripsCollection extends StatelessWidget {
     if (crossAxisCount == 1) {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final trip = trips[index];
+          final vehicle = vehicles[index];
           return Padding(
             padding: EdgeInsets.only(
-              bottom: index == trips.length - 1 ? 0 : 16.h,
+              bottom: index == vehicles.length - 1 ? 0 : 16.h,
             ),
-            child: TripCard(
-              trip: trip,
-              onViewPressed: () => _onViewPressed(context, trip),
+            child: VehicleCard(
+              vehicle: vehicle,
+              onManagePressed: () => _onManagePressed(context, vehicle),
             ),
           );
-        }, childCount: trips.length),
+        }, childCount: vehicles.length),
       );
     }
 
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 16.w,
         mainAxisSpacing: 16.h,
-        mainAxisExtent: 220.h,
+        crossAxisSpacing: 16.w,
+        mainAxisExtent: 260.h,
       ),
       delegate: SliverChildBuilderDelegate(
-        (context, index) => TripCard(
-          trip: trips[index],
+        (context, index) => VehicleCard(
+          vehicle: vehicles[index],
           isHorizontal: true,
-          onViewPressed: () => _onViewPressed(context, trips[index]),
+          onManagePressed: () => _onManagePressed(context, vehicles[index]),
         ),
-        childCount: trips.length,
+        childCount: vehicles.length,
       ),
     );
   }
 
-  void _onViewPressed(BuildContext context, TripSummary trip) {
+  void _onManagePressed(BuildContext context, VehicleProfile vehicle) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Viewing ${trip.displayTitle}')));
+    ).showSnackBar(SnackBar(content: Text('Manage ${vehicle.name} tapped')));
   }
 }
 
-class _TripsEmptyState extends StatelessWidget {
-  const _TripsEmptyState();
+class _VehiclesEmptyState extends StatelessWidget {
+  const _VehiclesEmptyState();
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          Icons.map_outlined,
+          Icons.local_shipping_outlined,
           size: 48.sp,
           color: ColorsManager.textSecondary,
         ),
         12.verticalSpace,
-        Text('No trips to display', style: AppStyles.cardTitle),
+        Text('No vehicles found', style: AppStyles.cardTitle),
         8.verticalSpace,
         Text(
-          'Try adjusting your filters or refresh to load more trips.',
+          'Try adjusting your filters or add a new vehicle.',
           style: AppStyles.bodyMeta,
           textAlign: TextAlign.center,
         ),
@@ -356,8 +452,8 @@ class _TripsEmptyState extends StatelessWidget {
   }
 }
 
-class _TripsErrorView extends StatelessWidget {
-  const _TripsErrorView({this.errorMessage});
+class _VehiclesErrorView extends StatelessWidget {
+  const _VehiclesErrorView({this.errorMessage});
 
   final String? errorMessage;
 
@@ -370,13 +466,13 @@ class _TripsErrorView extends StatelessWidget {
           Icon(Icons.error_outline, size: 40.sp, color: ColorsManager.errorRed),
           12.verticalSpace,
           Text(
-            errorMessage ?? 'Unable to load trips right now.',
+            errorMessage ?? 'Unable to load vehicles right now.',
             style: AppStyles.bodyMeta,
             textAlign: TextAlign.center,
           ),
           16.verticalSpace,
           FilledButton(
-            onPressed: context.read<TripsCubit>().retry,
+            onPressed: context.read<VehiclesCubit>().retry,
             style: FilledButton.styleFrom(
               backgroundColor: ColorsManager.primaryActionBlue,
             ),
